@@ -1,0 +1,22 @@
+{
+  "namespace": "warez",
+
+  "type": "record",
+  "name": "PriceUpdate",
+
+  "fields": [
+    {
+      "name": "productId",
+      "type": "string"
+    },
+    {
+      "name": "skuId",
+      "type": "string"
+    },
+    {
+      "name": "price",
+      "type": "int"
+    }
+  ]
+}
+

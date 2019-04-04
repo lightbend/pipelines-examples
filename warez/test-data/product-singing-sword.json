@@ -1,0 +1,32 @@
+{
+  "id":"912345678",
+  "name":"Acme Singing Sword",
+  "description":"A cartoon singing sword that belts out show tunes.  https://www.youtube.com/watch?v=6u8wBfDtZkE",
+  "keywords":[
+    "sword",
+    "sings",
+    "roger rabbit",
+    "ineffective",
+    "weapon"
+  ],
+  "skus":[
+    {
+      "id":"5",
+      "name":"Tenor",
+      "stock":50,
+      "price":10
+    },
+    {
+      "id":"6",
+      "name":"Baritone",
+      "stock":5,
+      "price":25
+    },
+    {
+      "id":"7",
+      "name":"Bass",
+      "stock":12,
+      "price":50
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+    "namespace": "pipelines.examples.sensordata",
+    "type": "record",
+    "name": "SensorData",
+    "fields":[
+         { 
+           "name": "deviceId", "type": "string" 
+         },
+         { 
+           "name": "timestamp", "type": "long" 
+         },
+         {
+            "name": "measurements", "type": "pipelines.examples.sensordata.Measurements"
+         }
+    ]
+}
+

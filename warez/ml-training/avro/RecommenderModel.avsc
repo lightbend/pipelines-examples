@@ -1,0 +1,34 @@
+{
+  "namespace": "warez",
+
+  "type": "record",
+  "name": "RecommenderModel",
+
+  "fields": [
+    {
+      "name": "modelId",
+      "type": "string"
+    },
+    {
+      "name": "tensorFlowModel",
+      "type": "bytes"
+    },
+    {
+      "name": "productMap",
+      "type": {
+        "type": "map",
+        "values": "int"
+      }
+    },
+    {
+      "name": "customerMap",
+      "type": {
+        "type": "map",
+        "values": "int"
+      }
+    }
+  ]
+}
+
+
+

@@ -1,0 +1,20 @@
+{
+    "namespace": "pipelines.example",
+    "type": "record",
+    "name": "Data",
+    "fields":[
+         {
+            "name": "timestamp",
+            "type": "long"
+         },
+         {
+             "name": "key",
+             "type": "long"
+          },
+         {
+            "name": "value",
+            "type": "long"
+         }
+    ]
+}
+

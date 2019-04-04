@@ -1,0 +1,22 @@
+{
+  "namespace": "warez",
+
+  "type": "record",
+  "name": "StockUpdate",
+
+  "fields": [
+    {
+      "name": "productId",
+      "type": "string"
+    },
+    {
+      "name": "skuId",
+      "type": "string"
+    },
+    {
+      "name": "diff",
+      "type": "int"
+    }
+  ]
+}
+

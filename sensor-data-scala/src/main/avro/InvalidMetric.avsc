@@ -1,0 +1,14 @@
+{
+    "namespace": "pipelines.examples.sensordata",
+    "type": "record",
+    "name": "InvalidMetric",
+    "fields":[
+         {
+            "name": "metric", "type": "pipelines.examples.sensordata.Metric"
+         },
+         {
+            "name": "error", "type": "string"
+         }
+    ]
+}
+
