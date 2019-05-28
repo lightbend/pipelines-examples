@@ -26,3 +26,5 @@ project/activator-sbt*
 # vim swap files
 *.swp
 .*.swp
+.metals/
+.bloop/
