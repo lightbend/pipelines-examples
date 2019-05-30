@@ -20,9 +20,9 @@ project/activator-sbt*
 *.iml
 *.iws
 
-# Metals
-.bloop/
+# Scala Metals
 .metals/
+.bloop/
 
 # Mac
 .DS_Store
