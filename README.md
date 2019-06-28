@@ -41,7 +41,7 @@ products and their stock numbers.
 
 # Running Examples
 
-Consult the [Pipelines Documentation](https://developer.lightbend.com/docs/pipelines/1.0.0/)
+Consult the [Pipelines Documentation](https://developer.lightbend.com/docs/pipelines/1.1.0/)
 for instructions on building, deploying and running Pipelines applications.
 
 ---
