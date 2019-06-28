@@ -12,7 +12,6 @@ import org.scalatest.concurrent._
 
 import pipelines.akkastream.testkit._
 
-import pipelines.examples.carly.data.Codecs._
 import pipelines.examples.carly.data._
 
 class CallRecordValidationSpec extends WordSpec with MustMatchers with ScalaFutures with BeforeAndAfterAll {
@@ -39,9 +38,9 @@ class CallRecordValidationSpec extends WordSpec with MustMatchers with ScalaFutu
 
       val source = Source(Vector(cr1, cr2, cr3, cr4, cr5))
 
-      val in = testkit.inletFromSource(CallRecordValidation.shape.inlet, source)
-      val left = testkit.outletAsTap(CallRecordValidation.shape.leftOutlet)
-      val right = testkit.outletAsTap(CallRecordValidation.shape.rightOutlet)
+      val in = testkit.inletFromSource(CallRecordValidation.in, source)
+      val left = testkit.outletAsTap(CallRecordValidation.left)
+      val right = testkit.outletAsTap(CallRecordValidation.right)
 
       testkit.run(CallRecordValidation, in, List(left, right), () ⇒ {
         right.probe.expectMsg(("user-1", cr1))

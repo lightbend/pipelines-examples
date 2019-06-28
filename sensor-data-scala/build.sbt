@@ -8,16 +8,12 @@ lazy val sensorData =  (project in file("."))
     .settings(
       libraryDependencies ++= Seq(
         "com.typesafe.akka"      %% "akka-http-spray-json"   % "10.1.8",
-        "com.twitter"            %% "bijection-avro"         % "0.9.6",
         "ch.qos.logback"         %  "logback-classic"        % "1.2.3",
         "com.typesafe.akka"      %% "akka-http-testkit"      % "10.1.8" % "test",
         "org.scalatest"          %% "scalatest"              % "3.0.7"  % "test"
       ),
       name := "sensor-data-scala",
       organization := "com.lightbend",
-      mainBlueprint := Some("blueprint.conf"),
-
-      (sourceGenerators in Compile) += (avroScalaGenerateSpecific in Compile).taskValue,
 
       scalaVersion := "2.12.8",
       crossScalaVersions := Vector(scalaVersion.value),

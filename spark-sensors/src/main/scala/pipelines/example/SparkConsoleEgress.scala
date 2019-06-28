@@ -1,21 +1,24 @@
 package pipelines.example
 
-import scala.collection.immutable.Seq
-import org.apache.spark.sql.Dataset
+import pipelines.streamlets.StreamletShape
 
-import pipelines.spark.{ EgressLogic, SparkEgress }
+import pipelines.streamlets.avro._
+import pipelines.spark.{ SparkStreamletLogic, SparkStreamlet }
 import pipelines.spark.sql.SQLImplicits._
-import pipelines.example.KeyedSchemas._
-import org.apache.spark.sql.streaming.{ OutputMode, StreamingQuery }
+import org.apache.spark.sql.streaming.OutputMode
 
-class SparkConsoleEgress extends SparkEgress[Agg] {
+class SparkConsoleEgress extends SparkStreamlet {
+  val in = AvroInlet[Agg]("in")
+  val shape = StreamletShape(in)
 
-  override def createLogic(): EgressLogic[Agg] = new EgressLogic() {
-    def process(inDataset: Dataset[Agg]): Seq[StreamingQuery] = {
-      Seq(inDataset.writeStream
+  override def createLogic() = new SparkStreamletLogic {
+    override def buildStreamingQueries = {
+      readStream(in).writeStream
         .format("console")
+        .option("checkpointLocation", context.checkpointDir("console-egress"))
         .outputMode(OutputMode.Append())
-        .start())
+        .start()
+        .toQueryExecution
     }
   }
 }

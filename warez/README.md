@@ -11,18 +11,7 @@ The Product Search egress performs two functions:
 
 This egress requires the user to setup the ElasticSearch infrastructure.
 
-To query the endpoint you must lookup the egress endpoint.
-
-Ex)
-
-```
-$ pipectl application status warez               
-STREAMLET         CURR-STATE        PREV-STATE        END-POINT
-price-updates     Running           -                 warez.apps.purplehat.lightbend.com/price-updates - Pending
-products-search   Running           -                 warez.apps.purplehat.lightbend.com/products-search - Pending
-products          Running           -                 warez.apps.purplehat.lightbend.com/products - Pending
-stock-updates     Running           -                 warez.apps.purplehat.lightbend.com/stock-updates - Pending
-```
+To query the endpoint you must lookup the egress endpoint using the CLI: `kubectl pipelines status warez`.
 
 Then issue a GET request to the endpoint with search criteria.
 

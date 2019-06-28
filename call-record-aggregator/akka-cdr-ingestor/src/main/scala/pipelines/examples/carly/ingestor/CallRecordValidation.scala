@@ -1,14 +1,22 @@
 package pipelines.examples.carly.ingestor
 
-import pipelines.akkastream.scaladsl._
+import pipelines.streamlets.avro._
+import pipelines.streamlets.StreamletShape
+import pipelines.akkastream.AkkaStreamlet
+import pipelines.akkastream.util.scaladsl.SplitterLogic
 
-import pipelines.examples.carly.data.Codecs._
 import pipelines.examples.carly.data._
 
-object CallRecordValidation extends Splitter[CallRecord, InvalidRecord, CallRecord] {
+object CallRecordValidation extends AkkaStreamlet {
+  val in = AvroInlet[CallRecord]("in")
+  val left = AvroOutlet[InvalidRecord]("invalid", _.record)
+  val right = AvroOutlet[CallRecord]("valid", _.user)
+
+  val shape = StreamletShape(in).withOutlets(left, right)
+
   val oldDataWatermark = java.sql.Timestamp.valueOf("2010-01-01 00:00:00.000").getTime / 1000 //seconds
 
-  override def createLogic = new SplitterLogic() {
+  override def createLogic = new SplitterLogic(in, left, right) {
     def flow =
       flowWithPipelinesContext()
         .map { record ⇒

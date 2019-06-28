@@ -1,9 +1,8 @@
 package warez
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
-
-import pipelines.akkastream.scaladsl._
+import pipelines.streamlets.avro._
 import JsonFormats._
-import KeyedSchemas._
+import warez.dsl._
 
-object ProductIngress extends HttpIngress[Product]
+object ProductIngress extends HttpIngress[Product](AvroOutlet[Product]("out", _.id.toString))

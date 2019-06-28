@@ -12,7 +12,6 @@ import org.scalatest.concurrent._
 
 import pipelines.akkastream.testkit._
 
-import pipelines.examples.carly.data.Codecs._
 import pipelines.examples.carly.data._
 
 class CallRecordMergeSpec extends WordSpec with MustMatchers with ScalaFutures with BeforeAndAfterAll {
@@ -42,10 +41,10 @@ class CallRecordMergeSpec extends WordSpec with MustMatchers with ScalaFutures w
       val source1 = Source(Vector(cr4, cr5))
       val source2 = Source(Vector(cr6))
 
-      val in0 = testkit.inletFromSource(CallRecordMerge.shape.inlets(0), source0)
-      val in1 = testkit.inletFromSource(CallRecordMerge.shape.inlets(1), source1)
-      val in2 = testkit.inletFromSource(CallRecordMerge.shape.inlets(2), source2)
-      val out = testkit.outletAsTap(CallRecordMerge.shape.outlet)
+      val in0 = testkit.inletFromSource(CallRecordMerge.in0, source0)
+      val in1 = testkit.inletFromSource(CallRecordMerge.in1, source1)
+      val in2 = testkit.inletFromSource(CallRecordMerge.in2, source2)
+      val out = testkit.outletAsTap(CallRecordMerge.out)
 
       testkit.run(CallRecordMerge, List(in0, in1, in2), out, () ⇒ {
         out.probe.expectMsg(("user-1", cr1))

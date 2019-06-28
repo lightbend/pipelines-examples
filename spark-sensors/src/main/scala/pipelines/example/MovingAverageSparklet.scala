@@ -1,17 +1,30 @@
 package pipelines.example
 
+import pipelines.streamlets.StreamletShape
+
+import pipelines.streamlets.avro._
+import pipelines.spark.{ SparkStreamletLogic, SparkStreamlet }
+
 import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.TimestampType
-
-import pipelines.spark.{ ProcessorLogic, SparkProcessor }
 import pipelines.spark.sql.SQLImplicits._
-import pipelines.example.KeyedSchemas._
+import org.apache.spark.sql.streaming.OutputMode
 
-class MovingAverageSparklet extends SparkProcessor[Data, Agg] {
+class MovingAverageSparklet extends SparkStreamlet {
 
-  override def createLogic(): ProcessorLogic[Data, Agg] = new ProcessorLogic[Data, Agg]() {
-    override def process(inDataset: Dataset[Data]): Dataset[Agg] = {
+  val in = AvroInlet[Data]("in")
+  val out = AvroOutlet[Agg]("out", _.src)
+  val shape = StreamletShape(in, out)
+
+  override def createLogic() = new SparkStreamletLogic {
+    override def buildStreamingQueries = {
+      val dataset = readStream(in)
+      val outStream = process(dataset)
+      writeStream(outStream, out, OutputMode.Append).toQueryExecution
+    }
+
+    private def process(inDataset: Dataset[Data]): Dataset[Agg] = {
       val query = inDataset
         .withColumn("ts", $"timestamp".cast(TimestampType))
         .withWatermark("ts", "1 minutes")

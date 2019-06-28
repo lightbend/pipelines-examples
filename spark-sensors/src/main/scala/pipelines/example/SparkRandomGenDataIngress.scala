@@ -4,19 +4,36 @@ import java.sql.Timestamp
 
 import scala.util.Random
 
+import pipelines.streamlets.{ IntegerConfigParameter, StreamletShape }
+import pipelines.streamlets.avro._
+import pipelines.spark.{ SparkStreamlet, SparkStreamletLogic }
 import org.apache.spark.sql.Dataset
+import org.apache.spark.sql.streaming.OutputMode
 
-import pipelines.spark.{ IngressLogic, SparkIngress }
 import pipelines.spark.sql.SQLImplicits._
-import pipelines.example.KeyedSchemas._
 
 case class Rate(timestamp: Timestamp, value: Long)
 
-object SparkRandomGenDataIngress extends SparkIngress[Data] {
-  override def createLogic(): IngressLogic[Data] = new IngressLogic[Data]() {
-    override def process: Dataset[Data] = {
-      // do we need to expose this through configuration?
-      val recordsPerSecond = 100
+object SparkRandomGenDataIngress extends SparkStreamlet {
+  val out = AvroOutlet[Data]("out", d ⇒ d.src)
+  val shape = StreamletShape(out)
+
+  val RecordsPerSecond = IntegerConfigParameter(
+    "records-per-second",
+    "Records per second to produce.",
+    Some(50))
+
+  override def configParameters = Vector(RecordsPerSecond)
+
+  override def createLogic() = new SparkStreamletLogic {
+
+    override def buildStreamingQueries = {
+      writeStream(process, out, OutputMode.Append).toQueryExecution
+    }
+
+    private def process: Dataset[Data] = {
+
+      val recordsPerSecond = context.streamletConfig.getInt(RecordsPerSecond.key)
 
       val gaugeGen: () ⇒ String = () ⇒ if (Random.nextDouble() < 0.5) "oil" else "gas"
 

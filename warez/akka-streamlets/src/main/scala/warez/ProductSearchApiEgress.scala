@@ -13,13 +13,13 @@ import akka.stream.scaladsl._
 
 import org.apache.commons.lang.StringEscapeUtils
 
+import pipelines.streamlets._
+import pipelines.streamlets.avro._
+import pipelines.akkastream._
 import pipelines.akkastream.scaladsl._
 import pipelines.streamlets._
+import warez.dsl._
 
-/**
- * Avro `KeyedSchema`s for Warez domain model (Product, Sku, etc.)
- */
-import KeyedSchemas._
 /**
  * spray-json `JsonFormat[T]`s for Warez domain model (Product, Sku, etc.)
  */
@@ -29,17 +29,34 @@ import JsonFormats._
  */
 import spray.json._
 
-object ProductSearchApiEgress extends FlowEgress[Product] {
+object ProductSearchApiEgress extends AkkaStreamlet {
+
+  val in = AvroInlet[Product]("in")
+  val shape = StreamletShape.withInlets(in)
+
   /**
    * Indicate that this egress is hosting a Server by defining the `ServerAttribute`
    */
   override def attributes: immutable.Set[StreamletAttribute] = immutable.Set(ServerAttribute)
 
-  private final val HostName = "es-hostname"
-  private final val PortNo = "es-port"
-  private final val IndexName = "es-index-name"
+  private val HostName = RegExpConfigParameter(
+    "es-hostname",
+    "Elasticsearch hostname specified as a DNS label",
+    "^(?![0-9]+$)(?!-)[a-zA-Z0-9-]{,63}(?<!-)$",
+    Some("localhost")
+  )
 
-  override def configKeys: immutable.Set[String] = Set(HostName, PortNo, IndexName)
+  private val PortNo = IntegerConfigParameter(
+    "es-port",
+    "Port number of Elasticsearch.",
+    Some(9300))
+
+  private val IndexName = StringConfigParameter(
+    "es-index-name",
+    "Elasticsearch index name.",
+    None)
+
+  override def configParameters = Vector(HostName, PortNo, IndexName)
 
   /**
    * Query API search result defaults
@@ -50,10 +67,10 @@ object ProductSearchApiEgress extends FlowEgress[Product] {
   /**
    * Mix in the `HttpServer` trait for access to a factory method to launch an akka-http server with `startServer`
    */
-  override def createLogic: FlowEgressLogic[Product] = new FlowEgressLogic[Product]() with HttpServer {
+  override def createLogic: StreamletLogic = new RunnableGraphStreamletLogic with HttpServer {
     /**
      * An ElasticSearch REST client used by Alpakka ElasticSearch to connect to the query API.
-     * TODO: Add ES connection info to streamlet config (`streamletRefConfig`). Hostname must be fully qualified K8s
+     * TODO: Add ES connection info to streamlet config (`streamletConfig`). Hostname must be fully qualified K8s
      *       service name
      *
      *  hostname = "pipelines-elasticsearch-client.elasticsearch.svc.cluster.local",
@@ -62,9 +79,9 @@ object ProductSearchApiEgress extends FlowEgress[Product] {
      */
     def getEsClient: ElasticSearchClient[Product] = {
       val esConfig = ElasticSearchClient.Config(
-        hostname = streamletRefConfig.getString(HostName),
-        port = streamletRefConfig.getInt(PortNo),
-        indexName = streamletRefConfig.getString(IndexName))
+        hostname = streamletConfig.getString(HostName.key),
+        port = streamletConfig.getInt(PortNo.key),
+        indexName = streamletConfig.getString(IndexName.key))
       ElasticSearchClient[Product](esConfig)
     }
 
@@ -161,17 +178,22 @@ object ProductSearchApiEgress extends FlowEgress[Product] {
       ServerAttribute.containerPort(config)
     )
 
+    override def runnableGraph =
+      atLeastOnceSource(in)
+        .via(flowWithContext.asFlow)
+        .to(atLeastOnceSink)
+
     /**
      * Akka Streams Flow to process messages from the streamlet inlet
      */
-    override def flow = {
+    private def flowWithContext = {
       val esClient = getEsClient
 
       /**
        * Use `FlowWithContext` so that we can commit offsets using at-least-once semantics after
        * messages have been indexed to ES.
        */
-      flowWithPipelinesContext()
+      FlowWithPipelinesContext[Product]
         .log("ES index", product ⇒ s"Indexing Product:\n${product.toJson.prettyPrint}")
         .map { product ⇒
           WriteMessage.createUpsertMessage[Product](product.id.toString, product)

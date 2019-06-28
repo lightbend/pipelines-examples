@@ -1,16 +1,26 @@
 package pipelines.example
 
 import org.apache.spark.sql.Dataset
+import org.apache.spark.sql.streaming.OutputMode
 
-import pipelines.spark.{ ProcessorLogic, SparkProcessor }
+import pipelines.streamlets.StreamletShape
+import pipelines.streamlets.avro._
+import pipelines.spark.{ SparkStreamletLogic, SparkStreamlet }
 import pipelines.spark.sql.SQLImplicits._
-import pipelines.example.KeyedSchemas._
 
-object SuicidalMonkeyProcessor extends SparkProcessor[Data, Data] {
+object SuicidalMonkeyProcessor extends SparkStreamlet {
+  val in = AvroInlet[Data]("in")
+  val out = AvroOutlet[Data]("out", _.key.toString)
+  val shape = StreamletShape(in, out)
+
   val rng = scala.util.Random
-  override def createLogic(): ProcessorLogic[Data, Data] = new ProcessorLogic[Data, Data]() {
+  override def createLogic() = new SparkStreamletLogic {
+    override def buildStreamingQueries = {
+      val outStream = process(readStream(in))
+      writeStream(outStream, out, OutputMode.Append).toQueryExecution
+    }
 
-    override def process(inDataset: Dataset[Data]): Dataset[Data] = {
+    private def process(inDataset: Dataset[Data]): Dataset[Data] = {
       inDataset.mapPartitions { iter ⇒
         // monkey business
         // The logic in this processor causes the current executor to crash with a certain probability.

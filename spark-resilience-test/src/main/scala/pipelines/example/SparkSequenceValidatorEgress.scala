@@ -1,16 +1,18 @@
 package pipelines.example
 
 import scala.collection.immutable.Seq
+
 import org.apache.spark.sql.Dataset
 import java.sql.Timestamp
 
-import org.apache.spark.sql.streaming.{ OutputMode, StreamingQuery }
+import org.apache.spark.sql.streaming.OutputMode
 import org.apache.spark.sql.streaming._
 import org.apache.spark.sql.functions._
 
-import pipelines.spark.{ EgressLogic, SparkEgress }
+import pipelines.streamlets.StreamletShape
+import pipelines.streamlets.avro._
+import pipelines.spark.{ SparkStreamlet, SparkStreamletLogic, StreamletQueryExecution }
 import pipelines.spark.sql.SQLImplicits._
-import pipelines.example.KeyedSchemas._
 
 case class DataGroup(key: Long, groupSize: Int, receivedData: Seq[Long] = Seq.empty, timedOut: Boolean = false) {
   def expectedSet = (key.toInt * groupSize until (key.toInt + 1) * groupSize).map(_.toLong).toSet
@@ -37,9 +39,10 @@ case class DataGroup(key: Long, groupSize: Int, receivedData: Seq[Long] = Seq.em
     val miss = missing.toList.sorted
     ranges(miss).mkString(",")
   }
-  def report: String = s"key [$key]: timeout " +
-    (if (timedOut) "[yes]" else "[no]") +
-    (if (isComplete) "is complete." else "missing :" + missingReport)
+  def report: String = {
+    def boolToYesNo(bool: Boolean) = if (bool) "yes" else "no"
+    s"key [$key]: timeout=[${boolToYesNo(timedOut)}] complete=[${boolToYesNo(isComplete)}]" + missingReport
+  }
 }
 
 case class TimestampedData(timestamp: Timestamp, key: Long, value: Long)
@@ -87,11 +90,16 @@ object StateFunction extends Serializable {
   }
 }
 
-class SparkSequenceValidatorEgress extends SparkEgress[Data] {
+object SparkSequenceValidatorEgress extends SparkStreamlet {
+  val in = AvroInlet[Data]("in")
+  val shape = StreamletShape(in)
 
-  override def createLogic(): EgressLogic[Data] = new EgressLogic() {
+  override def createLogic() = new SparkStreamletLogic() {
+    override def buildStreamingQueries = {
+      process(readStream(in))
+    }
 
-    def process(inDataset: Dataset[Data]): Seq[StreamingQuery] = {
+    def process(inDataset: Dataset[Data]): StreamletQueryExecution = {
 
       val keyedData = inDataset.map(TimestampedData.fromData)
         .withWatermark("timestamp", "30 seconds")
@@ -111,17 +119,19 @@ class SparkSequenceValidatorEgress extends SparkEgress[Data] {
         .writeStream
         .format("console")
         .option("truncate", false)
+        .option("checkpointLocation", context.checkpointDir("q1"))
         .queryName("incomplete-events")
         .outputMode(OutputMode.Append())
         .start()
 
       val q2 = stats.writeStream
         .format("console")
+        .option("checkpointLocation", context.checkpointDir("q2"))
         .outputMode(OutputMode.Complete())
         .queryName("stats")
         .start()
 
-      Seq(q1, q2)
+      StreamletQueryExecution(q1, q2)
     }
   }
 }

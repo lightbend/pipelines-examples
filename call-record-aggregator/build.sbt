@@ -6,19 +6,12 @@ lazy val callRecordPipeline = (project in file("./call-record-pipeline"))
   .enablePlugins(PipelinesApplicationPlugin)
   .settings(commonSettings)
   .settings(
-    name := "call-record-pipeline",
-    mainBlueprint := Some("blueprint.conf")
+    name := "call-record-pipeline"
   )
   .dependsOn(akkaCdrIngestor, akkaJavaAggregationOutput, sparkAggregation)
 
 lazy val datamodel = (project in file("./datamodel"))
   .enablePlugins(PipelinesLibraryPlugin)
-  .settings(
-    libraryDependencies ++= Seq(
-      "com.twitter" %% "bijection-avro" % "0.9.6"
-    ),
-    (sourceGenerators in Compile) += (avroScalaGenerateSpecific in Compile).taskValue,
-  )
 
 lazy val akkaCdrIngestor= (project in file("./akka-cdr-ingestor"))
     .enablePlugins(PipelinesAkkaStreamsLibraryPlugin)

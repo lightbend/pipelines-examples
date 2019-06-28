@@ -1,17 +1,14 @@
 package warez
 
+import pipelines.streamlets.avro._
 import pipelines.akkastream.scaladsl._
-import KeyedSchemas._
+import akka.actor.ActorSystem
+import warez.dsl._
 
-object StockUpdateLogger extends FlowEgress[StockUpdate] {
-  override def createLogic = new FlowEgressLogic[StockUpdate]() {
-    def flow = {
-      flowWithPipelinesContext()
-        .map { stockUpdate ⇒
-          system.log.warning(s"Stock Update! $stockUpdate")
-
-          stockUpdate
-        }
+object StockUpdateLogger extends FlowEgress[StockUpdate](AvroInlet[StockUpdate]("in")) {
+  def flowWithContext(system: ActorSystem) =
+    FlowWithPipelinesContext[StockUpdate].map { stockUpdate ⇒
+      system.log.warning(s"Stock Update! $stockUpdate")
+      stockUpdate
     }
-  }
 }

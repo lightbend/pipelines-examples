@@ -6,12 +6,6 @@ lazy val root = blueprint
 
 lazy val datamodel = (project in file("./datamodel"))
   .enablePlugins(PipelinesLibraryPlugin)
-  .settings(
-    libraryDependencies ++= Seq(
-      "com.twitter" %% "bijection-avro" % "0.9.6"
-    ),
-    (sourceGenerators in Compile) += (avroScalaGenerateSpecific in Compile).taskValue,
-  )
 
 lazy val blueprint = (project in file("./blueprint"))
   .enablePlugins(PipelinesApplicationPlugin)
@@ -19,8 +13,7 @@ lazy val blueprint = (project in file("./blueprint"))
     /**
       * NOTE: Can we namespace or sandbox developer instances of this deployment?
       */
-    name := "warez",
-    mainBlueprint := Some("blueprint.conf")
+    name := "warez"
   )
   .dependsOn(akkaStreamlets, sparkStreamlets)
 

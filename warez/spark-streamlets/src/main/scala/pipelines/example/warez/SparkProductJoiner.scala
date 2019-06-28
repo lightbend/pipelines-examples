@@ -1,27 +1,45 @@
 package pipelines.example.warez
 
+import scala.collection.immutable.Seq
 import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.streaming.{ GroupState, GroupStateTimeout, OutputMode }
+import pipelines.streamlets.StreamletShape
+import pipelines.streamlets.avro._
 import pipelines.spark.sql.SQLImplicits._
-import pipelines.spark.{ Join3Logic, SparkJoin3 }
-import warez.KeyedSchemas._
+import pipelines.spark.{ SparkStreamletLogic, SparkStreamlet }
 import warez.{ PriceUpdate, Sku, StockUpdate }
 import SparkProductJoiner._
 
-class SparkProductJoiner extends SparkJoin3[warez.Product, warez.StockUpdate, warez.PriceUpdate, warez.Product] {
-  override def createLogic(): Join3Logic[warez.Product, warez.StockUpdate, warez.PriceUpdate, warez.Product] =
-    new Join3Logic[warez.Product, warez.StockUpdate, warez.PriceUpdate, warez.Product] {
-      override def process(products: Dataset[warez.Product], stocks: Dataset[warez.StockUpdate], prices: Dataset[warez.PriceUpdate]): Dataset[warez.Product] = {
-        val stocksAsProducts = stocks.map(stockUpdate2Product)
-        val pricesAsProducts = prices.map(priceUpdate2Products)
-        val withStocks = products
-          .union(stocksAsProducts)
-          .union(pricesAsProducts)
-          .groupByKey(p ⇒ p.id)
-          .flatMapGroupsWithState(OutputMode.Append(), GroupStateTimeout.NoTimeout)(stateFunc)
-        withStocks
-      }
+class SparkProductJoiner extends SparkStreamlet {
+
+  val in0 = AvroInlet[warez.Product]("in-0")
+  val in1 = AvroInlet[warez.StockUpdate]("in-1")
+  val in2 = AvroInlet[warez.PriceUpdate]("in-2")
+  val out = AvroOutlet[warez.Product]("out", _.id.toString)
+
+  val shape = StreamletShape(out).withInlets(in0, in1, in2)
+
+  override def createLogic = new SparkStreamletLogic {
+
+    override def buildStreamingQueries = {
+      val products = readStream(in0)
+      val stocks = readStream(in1)
+      val prices = readStream(in2)
+      val outStream = process(products, stocks, prices)
+      val query = writeStream(outStream, out, OutputMode.Append)
+      query.toQueryExecution
     }
+    private def process(products: Dataset[warez.Product], stocks: Dataset[warez.StockUpdate], prices: Dataset[warez.PriceUpdate]): Dataset[warez.Product] = {
+      val stocksAsProducts = stocks.map(stockUpdate2Product)
+      val pricesAsProducts = prices.map(priceUpdate2Products)
+      val withStocks = products
+        .union(stocksAsProducts)
+        .union(pricesAsProducts)
+        .groupByKey(p ⇒ p.id)
+        .flatMapGroupsWithState(OutputMode.Append(), GroupStateTimeout.NoTimeout)(stateFunc)
+      withStocks
+    }
+  }
 }
 
 object SparkProductJoiner {

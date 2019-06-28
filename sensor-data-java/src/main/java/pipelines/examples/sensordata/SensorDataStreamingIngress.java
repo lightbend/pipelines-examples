@@ -3,15 +3,23 @@ package pipelines.examples.sensordata;
 import akka.http.javadsl.common.EntityStreamingSupport;
 import akka.http.javadsl.marshallers.jackson.Jackson;
 
-import pipelines.akkastream.javadsl.*;
+import pipelines.akkastream.AkkaServerStreamlet;
 
-public class SensorDataStreamingIngress extends HttpIngress<SensorData> {
+import pipelines.akkastream.util.javadsl.HttpServerLogic;
+import pipelines.akkastream.StreamletLogic;
+import pipelines.streamlets.StreamletShape;
+import pipelines.streamlets.avro.AvroOutlet;
 
-  public SensorDataStreamingIngress() {
-    super(KeyedSchemas.instance.sensorDataKeyed, Jackson.byteStringUnmarshaller(SensorData.class));
+public class SensorDataStreamingIngress extends AkkaServerStreamlet {
+
+  AvroOutlet<SensorData> out =  AvroOutlet.<SensorData>create("out", s -> s.getDeviceId().toString() + s.getTimestamp().toString(), SensorData.class);
+
+  public StreamletShape shape() {
+   return StreamletShape.createWithOutlets(out);
   }
-  public HttpLogic createLogic() {
-    EntityStreamingSupport entityStreamingSupport = EntityStreamingSupport.json();
-    return defaultStreamingHttpLogic(entityStreamingSupport);
+
+  public StreamletLogic createLogic() {
+    EntityStreamingSupport ess = EntityStreamingSupport.json();
+    return HttpServerLogic.createDefaultStreaming(this, out, Jackson.byteStringUnmarshaller(SensorData.class), ess, getStreamletContext());
   }
 }

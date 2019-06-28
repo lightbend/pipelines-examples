@@ -1,17 +1,14 @@
 package warez
 
+import pipelines.streamlets.avro._
 import pipelines.akkastream.scaladsl._
-import KeyedSchemas._
+import akka.actor.ActorSystem
+import warez.dsl._
 
-object ProductLogger extends FlowEgress[Product] {
-  override def createLogic = new FlowEgressLogic[Product]() {
-    def flow = {
-      flowWithPipelinesContext()
-        .map { product ⇒
-          system.log.warning(s"Product! $product")
-
-          product
-        }
+object ProductLogger extends FlowEgress[Product](AvroInlet[Product]("in")) {
+  def flowWithContext(system: ActorSystem) =
+    FlowWithPipelinesContext[Product].map { product ⇒
+      system.log.warning(s"Product! $product")
+      product
     }
-  }
 }

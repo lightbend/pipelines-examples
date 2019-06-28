@@ -6,16 +6,15 @@ import scala.concurrent.duration._
 import pipelines.spark.testkit._
 import pipelines.spark.sql.SQLImplicits._
 
-class SparkSequenceValidatorEgressTest extends SparkTestSupport {
+class SparkSequenceValidatorEgressTest extends SparkScalaTestSupport {
+
+  val testKit = SparkStreamletTestkit(session).withConfigParameterValues(ConfigParameterValue(SparkSequenceGeneratorIngress.RecordsPerSecond, "50"))
 
   "SparkSequenceValidatorEgress" should {
     "output streaming data" in {
 
-      //  Create an instance of the streamlet under test
-      val instance = new SparkSequenceValidatorEgress
-
       // Setup inlet tap on inlet(s) port(s)
-      val in: SparkInletTap[Data] = inletAsTap[Data](instance.shape.inlet)
+      val in: SparkInletTap[Data] = testKit.inletAsTap[Data](SparkSequenceValidatorEgress.in)
 
       // Build data and send to inlet tap
       val now = System.currentTimeMillis()
@@ -23,7 +22,7 @@ class SparkSequenceValidatorEgressTest extends SparkTestSupport {
         (0 until SequenceSettings.GroupSize - 1).map(i ⇒ Data(now + i * 1000, 2, i.toLong))
       in.addData(data)
 
-      run(instance, Seq(in), Seq.empty, 10.seconds)
+      testKit.run(SparkSequenceValidatorEgress, Seq(in), Seq.empty, 10.seconds)
 
     }
   }

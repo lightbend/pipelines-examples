@@ -1,25 +1,30 @@
 package pipelines.examples.carly.aggregator
 
-import scala.collection.immutable.Seq
-import org.apache.spark.sql.Dataset
-
-import pipelines.spark.{ SparkEgress, EgressLogic }
+import pipelines.streamlets._
+import pipelines.streamlets.avro._
+import pipelines.spark.{ SparkStreamlet, SparkStreamletLogic }
 import pipelines.spark.sql.SQLImplicits._
-import org.apache.spark.sql.streaming.{ OutputMode, StreamingQuery }
+import org.apache.spark.sql.streaming.OutputMode
+
+import org.apache.log4j.{ Level, Logger }
 
 import pipelines.examples.carly.data._
-import pipelines.examples.carly.data.Codecs._
 
-class CallAggregatorConsoleEgress extends SparkEgress[AggregatedCallStats] {
+class CallAggregatorConsoleEgress extends SparkStreamlet {
 
-  override def createLogic: EgressLogic[AggregatedCallStats] = new EgressLogic[AggregatedCallStats] {
+  val rootLogger = Logger.getRootLogger()
+  rootLogger.setLevel(Level.ERROR)
 
-    override def process(inDataset: Dataset[AggregatedCallStats]): Seq[StreamingQuery] = {
-      Seq(inDataset.writeStream
+  val in = AvroInlet[AggregatedCallStats]("in")
+  val shape = StreamletShape(in)
+
+  override def createLogic = new SparkStreamletLogic {
+    override def buildStreamingQueries = {
+      readStream(in).writeStream
         .format("console")
         .outputMode(OutputMode.Append())
-        .start())
+        .start()
+        .toQueryExecution
     }
   }
-
 }

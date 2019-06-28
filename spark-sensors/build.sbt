@@ -10,11 +10,8 @@ lazy val sparkSensors = (project in file("."))
         "org.scalatest" %% "scalatest" % "3.0.7" % "test"
       ),
 
-      name := "spark-sensors-test",
+      name := "spark-sensors",
       organization := "com.lightbend",
-      mainBlueprint := Some("blueprint.conf"),
-
-      (sourceGenerators in Compile) += (avroScalaGenerateSpecific in Compile).taskValue,
 
       scalaVersion := "2.12.8",
       crossScalaVersions := Vector(scalaVersion.value),

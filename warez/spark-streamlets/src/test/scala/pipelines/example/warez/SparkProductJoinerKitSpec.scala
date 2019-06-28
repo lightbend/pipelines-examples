@@ -10,12 +10,9 @@ import pipelines.spark.sql.SQLImplicits._
 import TestUtils._
 import warez._
 
-class SparkProductJoinerKitSpec extends SparkTestSupport {
+class SparkProductJoinerKitSpec extends SparkScalaTestSupport {
 
-  override def afterAll(): Unit = {
-    super.afterAll()
-    StateStore.stop() // stop the state store maintenance thread and unload store providers
-  }
+  val testKit = SparkStreamletTestkit(session)
 
   "SparkJoin3" should {
     "process streaming data" in {
@@ -23,12 +20,12 @@ class SparkProductJoinerKitSpec extends SparkTestSupport {
       val join3 = new SparkProductJoiner()
 
       // setup inlet tap on inlet port
-      val in0: SparkInletTap[Product] = inletAsTap[Product](join3.shape.inlet0)
-      val in1: SparkInletTap[StockUpdate] = inletAsTap[StockUpdate](join3.shape.inlet1)
-      val in2: SparkInletTap[PriceUpdate] = inletAsTap[PriceUpdate](join3.shape.inlet2)
+      val in0: SparkInletTap[Product] = testKit.inletAsTap[Product](join3.in0)
+      val in1: SparkInletTap[StockUpdate] = testKit.inletAsTap[StockUpdate](join3.in1)
+      val in2: SparkInletTap[PriceUpdate] = testKit.inletAsTap[PriceUpdate](join3.in2)
 
       // setup outlet tap on outlet port
-      val out: SparkOutletTap[Product] = outletAsTap[Product](join3.shape.outlet)
+      val out: SparkOutletTap[Product] = testKit.outletAsTap[Product](join3.out)
 
       val socksId = uuid
       val pantsId = uuid
@@ -49,7 +46,7 @@ class SparkProductJoinerKitSpec extends SparkTestSupport {
       val data2 = List(priceUpdate)
       in2.addData(data2)
 
-      run(join3, Seq(in0, in1, in2), Seq(out), 60.seconds)
+      testKit.run(join3, Seq(in0, in1, in2), Seq(out), 60.seconds)
 
       // get data from outlet tap
       val results = out.asCollection(session)
@@ -57,7 +54,7 @@ class SparkProductJoinerKitSpec extends SparkTestSupport {
       results.foreach(println)
 
       // assert
-      results should have length 2
+      results must have length 2
       results.exists { p ⇒ p.name == "Socks" && p.skus.head.stock.contains(100) }
     }
   }

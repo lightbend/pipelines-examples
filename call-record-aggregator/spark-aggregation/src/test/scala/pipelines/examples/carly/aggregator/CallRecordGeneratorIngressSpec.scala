@@ -8,21 +8,23 @@ import pipelines.examples.carly.data._
 import pipelines.spark.testkit._
 import pipelines.spark.sql.SQLImplicits._
 
-class CallRecordGeneratorIngressSpec extends SparkTestSupport {
+class CallRecordGeneratorIngressSpec extends SparkScalaTestSupport {
+
+  val testKit = SparkStreamletTestkit(session).withConfigParameterValues(ConfigParameterValue(CallRecordGeneratorIngress.RecordsPerSecond, "50"))
 
   "CallRecordGeneratorIngress" should {
     "produce elements to its outlet" in {
 
       // setup outlet tap on outlet port
-      val out = outletAsTap[CallRecord](CallRecordGeneratorIngress.shape.outlet)
+      val out = testKit.outletAsTap[CallRecord](CallRecordGeneratorIngress.out)
 
-      run(CallRecordGeneratorIngress, Seq.empty, Seq(out), 40.seconds)
+      testKit.run(CallRecordGeneratorIngress, Seq.empty, Seq(out), 40.seconds)
 
       // get data from outlet tap
       val results = out.asCollection(session)
 
       // assert
-      results.size should be > 0
+      results.size must be > 0
 
     }
   }

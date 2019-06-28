@@ -2,9 +2,16 @@ package pipelines.examples.carly.ingestor
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 
-import pipelines.akkastream.scaladsl.HttpIngress
 import JsonCallRecord._
+import pipelines.streamlets.avro._
 import pipelines.examples.carly.data._
-import pipelines.examples.carly.data.Codecs._
+import pipelines.streamlets._
+import pipelines.akkastream._
+import pipelines.akkastream.util.scaladsl.HttpServerLogic
 
-class CallRecordIngress extends HttpIngress[CallRecord]
+object CallRecordIngress extends AkkaServerStreamlet {
+  val out = AvroOutlet[CallRecord]("out", _.user)
+  final override val shape = StreamletShape.withOutlets(out)
+
+  override final def createLogic = HttpServerLogic.default(this, out)
+}

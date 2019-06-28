@@ -27,8 +27,4 @@ project/activator-sbt*
 *.swp
 .*.swp
 
-# Scala Metals
-.metals/
-.bloop/
-
 target-env.sbt
