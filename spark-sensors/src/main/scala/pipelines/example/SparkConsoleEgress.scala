@@ -12,6 +12,7 @@ class SparkConsoleEgress extends SparkStreamlet {
   val shape = StreamletShape(in)
 
   override def createLogic() = new SparkStreamletLogic {
+    //tag::docs-checkpointDir-example[]
     override def buildStreamingQueries = {
       readStream(in).writeStream
         .format("console")
@@ -20,5 +21,6 @@ class SparkConsoleEgress extends SparkStreamlet {
         .start()
         .toQueryExecution
     }
+    //end::docs-checkpointDir-example[]
   }
 }

@@ -2,6 +2,7 @@ import sbt._
 import sbt.Keys._
 import scalariform.formatter.preferences._
 
+//tag::docs-PipelinesApplicationPlugin-example[]
 lazy val callRecordPipeline = (project in file("./call-record-pipeline"))
   .enablePlugins(PipelinesApplicationPlugin)
   .settings(commonSettings)
@@ -9,6 +10,7 @@ lazy val callRecordPipeline = (project in file("./call-record-pipeline"))
     name := "call-record-pipeline"
   )
   .dependsOn(akkaCdrIngestor, akkaJavaAggregationOutput, sparkAggregation)
+//end::docs-PipelinesApplicationPlugin-example[]
 
 lazy val datamodel = (project in file("./datamodel"))
   .enablePlugins(PipelinesLibraryPlugin)

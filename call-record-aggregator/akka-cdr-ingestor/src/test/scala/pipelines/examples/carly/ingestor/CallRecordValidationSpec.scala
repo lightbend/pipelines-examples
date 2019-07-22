@@ -15,7 +15,6 @@ import pipelines.akkastream.testkit._
 import pipelines.examples.carly.data._
 
 class CallRecordValidationSpec extends WordSpec with MustMatchers with ScalaFutures with BeforeAndAfterAll {
-
   private implicit val system = ActorSystem("CallRecordValidationSpec")
   private implicit val mat = ActorMaterializer()
 

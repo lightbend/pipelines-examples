@@ -12,15 +12,16 @@ import pipelines.spark.sql.SQLImplicits._
 import org.apache.log4j.{ Level, Logger }
 
 import pipelines.examples.carly.data._
-
 object CallStatsAggregator extends SparkStreamlet {
 
   val rootLogger = Logger.getRootLogger()
   rootLogger.setLevel(Level.ERROR)
 
+  //tag::docs-schemaAware-example[]
   val in = AvroInlet[CallRecord]("in")
   val out = AvroOutlet[AggregatedCallStats]("out", _.startTime.toString)
   val shape = StreamletShape(in, out)
+  //end::docs-schemaAware-example[]
 
   val GroupByWindow = DurationConfigParameter(
     "group-by-window",
@@ -34,19 +35,17 @@ object CallStatsAggregator extends SparkStreamlet {
 
   override def configParameters = Vector(GroupByWindow, Watermark)
   override def createLogic = new SparkStreamletLogic {
+    val watermark = context.streamletConfig.getDuration(Watermark.key)
+    val groupByWindow = context.streamletConfig.getDuration(GroupByWindow.key)
 
+    //tag::docs-aggregationQuery-example[]
     override def buildStreamingQueries = {
       val dataset = readStream(in)
       val outStream = process(dataset)
       writeStream(outStream, out, OutputMode.Update).toQueryExecution
     }
 
-    val watermark = context.streamletConfig.getDuration(Watermark.key)
-    val groupByWindow = context.streamletConfig.getDuration(GroupByWindow.key)
-
     private def process(inDataset: Dataset[CallRecord]): Dataset[AggregatedCallStats] = {
-      // TODO spark logging?
-      println(s"Starting query with watermark $watermark, group-by-window $groupByWindow")
       val query =
         inDataset
           .withColumn("ts", $"timestamp".cast(TimestampType))
@@ -59,5 +58,6 @@ object CallStatsAggregator extends SparkStreamlet {
         .select($"window.start".cast(LongType) as "startTime", $"windowDuration", $"avgCallDuration", $"totalCallDuration")
         .as[AggregatedCallStats]
     }
+    //end::docs-aggregationQuery-example[]
   }
 }

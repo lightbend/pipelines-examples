@@ -11,7 +11,7 @@ import pipelines.akkastream.util.scaladsl.HttpServerLogic
 
 object CallRecordIngress extends AkkaServerStreamlet {
   val out = AvroOutlet[CallRecord]("out", _.user)
-  final override val shape = StreamletShape.withOutlets(out)
 
-  override final def createLogic = HttpServerLogic.default(this, out)
+  final override val shape = StreamletShape.withOutlets(out)
+  final override def createLogic = HttpServerLogic.default(this, out)
 }

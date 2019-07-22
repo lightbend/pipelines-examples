@@ -1,19 +1,24 @@
-// This file contains settings that are specific to a deployment environment.
-
 /*
- * The `pipelinesDockerRegistry` setting specifies the Docker registry
+ * The `pipelinesDockerRegistry` and `pipelinesDockerRepository` settings specify
+ * the Docker registry (e.g. hostname) and repository (e.g. path on that host)
  * that the Pipelines sbt plugin uses for pushing application Docker images.
- * This registry needs to have been configured as a "pullable" registry on any
- * Kubernetes cluster you want to deploy this application to.
  *
- * The specified Docker registry URL needs to be configured on the cluster that
- * the application should be deployed to. There are two common models for setting
- * this up:
+ * Example:
  *
- * 1. A central docker registry, used by multiple Kubernetes clusters
- * 2. A Docker registry per Kubernetes cluster (common for Openshift)
+ * pipelinesDockerRegistry := Some("foo.com")
+ * pipelinesDockerRepository := Some("bar/baz")
+ *
+ * This will cause your application Docker images to be pushed as:
+ *
+ * `foo.com/bar/baz/[image name]:[tag]`
+ *
+ * In multi-project SBT setups, please prefix both values with `ThisBuild / `, e.g.:
+ *
+ * ThisBuild / pipelinesDockerRegistry := Some("foo.com")
+ * ThisBuild / pipelinesDockerRepository := Some("bar/baz")
  *
  * The sbt plugin expects you to have logged in to the specified registry using
  * the `docker login` command.
  */
 ThisBuild / pipelinesDockerRegistry := Some("YOUR_DOCKER_REGISTRY")
+ThisBuild / pipelinesDockerRepository := Some("YOUR_DOCKER_REPOSITORY")

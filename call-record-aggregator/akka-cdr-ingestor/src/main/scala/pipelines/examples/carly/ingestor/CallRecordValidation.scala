@@ -8,15 +8,14 @@ import pipelines.akkastream.util.scaladsl.SplitterLogic
 import pipelines.examples.carly.data._
 
 object CallRecordValidation extends AkkaStreamlet {
+  private val oldDataWatermark = java.sql.Timestamp.valueOf("2010-01-01 00:00:00.000").getTime / 1000 //seconds
+
   val in = AvroInlet[CallRecord]("in")
   val left = AvroOutlet[InvalidRecord]("invalid", _.record)
   val right = AvroOutlet[CallRecord]("valid", _.user)
 
-  val shape = StreamletShape(in).withOutlets(left, right)
-
-  val oldDataWatermark = java.sql.Timestamp.valueOf("2010-01-01 00:00:00.000").getTime / 1000 //seconds
-
-  override def createLogic = new SplitterLogic(in, left, right) {
+  final override val shape = StreamletShape(in).withOutlets(left, right)
+  final override def createLogic = new SplitterLogic(in, left, right) {
     def flow =
       flowWithPipelinesContext()
         .map { record ⇒

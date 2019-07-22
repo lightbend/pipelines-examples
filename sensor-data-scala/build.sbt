@@ -1,3 +1,4 @@
+//tag::docs-projectSetup-example[]
 import sbt._
 import sbt.Keys._
 
@@ -6,13 +7,16 @@ import scalariform.formatter.preferences._
 lazy val sensorData =  (project in file("."))
     .enablePlugins(PipelinesAkkaStreamsApplicationPlugin)
     .settings(
+//end::docs-projectSetup-example[]
       libraryDependencies ++= Seq(
         "com.typesafe.akka"      %% "akka-http-spray-json"   % "10.1.8",
         "ch.qos.logback"         %  "logback-classic"        % "1.2.3",
         "com.typesafe.akka"      %% "akka-http-testkit"      % "10.1.8" % "test",
         "org.scalatest"          %% "scalatest"              % "3.0.7"  % "test"
+//tag::docs-projectName-example[]
       ),
       name := "sensor-data-scala",
+//end::docs-projectName-example[]
       organization := "com.lightbend",
 
       scalaVersion := "2.12.8",
