@@ -32,10 +32,10 @@ products and their stock numbers.
 
 | Application         | Akka Streams (Scala) | Akka Streams (Java) | Spark | Testkit | Ingress | Egress                  | Auto Data Generation    |
 |---------------------|----------------------|---------------------|-------|---------|---------|-------------------------|-------------------------|
-| `sensor-data-scala` | Yes                  | No                  | Yes   | No      | HTTP    | stdout (logs)           | Yes (Client Lua Script) |
+| `sensor-data-scala` | Yes                  | No                  | No    | No      | HTTP    | stdout (logs)           | Yes (Client Lua Script) |
 | `sensor-data-java`  | No                   | Yes                 | No    | No      | HTTP    | stdout (logs)           | Yes (Client Lua Script) |
 | `call-record-aggregator` | Yes             | Yes                 | Yes   | Yes     | HTTP    | stdout (logs)           | Yes                     |
-| `spark-sensors`     | Yes                  | No                  | No    | No      | HTTP    | stdout (logs)           | Yes                     |
+| `spark-sensors`     | No                   | No                  | Yes   | No      | HTTP    | stdout (logs)           | Yes                     |
 | `spark-resilience-test` | Yes              | No                  | No    | Yes     | HTTP    | stdout (logs)           | Yes                     |
 | `warez`             | Yes                  | No                  | Yes   | Yes     | HTTP    | ElasticSearch, HTTP API | No                      |
 
