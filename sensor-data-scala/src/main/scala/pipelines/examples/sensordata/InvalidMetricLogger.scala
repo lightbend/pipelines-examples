@@ -5,20 +5,19 @@ import pipelines.akkastream.scaladsl._
 import pipelines.streamlets._
 import pipelines.streamlets.avro._
 
-object InvalidMetricLogger extends AkkaStreamlet {
+class InvalidMetricLogger extends AkkaStreamlet {
   val inlet = AvroInlet[InvalidMetric]("in")
   val shape = StreamletShape.withInlets(inlet)
 
   override def createLogic = new RunnableGraphStreamletLogic() {
-    val flow = FlowWithPipelinesContext[InvalidMetric]
+    val flow = FlowWithOffsetContext[InvalidMetric]
       .map { invalidMetric ⇒
         system.log.warning(s"Invalid metric detected! $invalidMetric")
-
         invalidMetric
       }
 
     def runnableGraph = {
-      atLeastOnceSource(inlet).via(flow).to(atLeastOnceSink)
+      sourceWithOffsetContext(inlet).via(flow).to(sinkWithOffsetContext)
     }
   }
 }

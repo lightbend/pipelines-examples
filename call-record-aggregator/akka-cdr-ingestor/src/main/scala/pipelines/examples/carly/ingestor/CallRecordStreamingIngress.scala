@@ -10,10 +10,11 @@ import pipelines.streamlets._
 import pipelines.akkastream._
 import pipelines.akkastream.util.scaladsl.HttpServerLogic
 
-object CallRecordStreamingIngress extends AkkaServerStreamlet {
+class CallRecordStreamingIngress extends AkkaServerStreamlet {
   implicit val entityStreamingSupport = EntityStreamingSupport.json()
 
-  val out = AvroOutlet[CallRecord]("out", _.user)
+  val out = AvroOutlet[CallRecord]("out").withPartitioner(RoundRobinPartitioner)
+
   final override val shape = StreamletShape.withOutlets(out)
 
   override final def createLogic = HttpServerLogic.defaultStreaming(this, out)

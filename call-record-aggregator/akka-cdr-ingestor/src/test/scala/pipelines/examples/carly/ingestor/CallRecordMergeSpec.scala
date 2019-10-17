@@ -10,8 +10,7 @@ import akka.testkit._
 import org.scalatest._
 import org.scalatest.concurrent._
 
-import pipelines.akkastream.testkit._
-
+import pipelines.akkastream.testkit.scaladsl._
 import pipelines.examples.carly.data._
 
 class CallRecordMergeSpec extends WordSpec with MustMatchers with ScalaFutures with BeforeAndAfterAll {
@@ -26,6 +25,7 @@ class CallRecordMergeSpec extends WordSpec with MustMatchers with ScalaFutures w
   "A CallRecordMerge" should {
     "merge incoming data" in {
       val testkit = AkkaStreamletTestKit(system, mat)
+      val streamlet = new CallRecordMerge
 
       val instant = Instant.now.toEpochMilli / 1000
       val past = Instant.now.minus(5000, ChronoUnit.DAYS).toEpochMilli / 1000
@@ -41,12 +41,12 @@ class CallRecordMergeSpec extends WordSpec with MustMatchers with ScalaFutures w
       val source1 = Source(Vector(cr4, cr5))
       val source2 = Source(Vector(cr6))
 
-      val in0 = testkit.inletFromSource(CallRecordMerge.in0, source0)
-      val in1 = testkit.inletFromSource(CallRecordMerge.in1, source1)
-      val in2 = testkit.inletFromSource(CallRecordMerge.in2, source2)
-      val out = testkit.outletAsTap(CallRecordMerge.out)
+      val in0 = testkit.inletFromSource(streamlet.in0, source0)
+      val in1 = testkit.inletFromSource(streamlet.in1, source1)
+      val in2 = testkit.inletFromSource(streamlet.in2, source2)
+      val out = testkit.outletAsTap(streamlet.out)
 
-      testkit.run(CallRecordMerge, List(in0, in1, in2), out, () ⇒ {
+      testkit.run(streamlet, List(in0, in1, in2), out, () ⇒ {
         out.probe.expectMsg(("user-1", cr1))
         out.probe.expectMsg(("user-1", cr4))
         out.probe.expectMsg(("user-3", cr6))

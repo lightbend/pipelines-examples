@@ -7,7 +7,7 @@ import warez.dsl._
 
 object PriceUpdateLogger extends FlowEgress[PriceUpdate](AvroInlet[PriceUpdate]("in")) {
   def flowWithContext(system: ActorSystem) =
-    FlowWithPipelinesContext[PriceUpdate].map { priceUpdate ⇒
+    FlowWithOffsetContext[PriceUpdate].map { priceUpdate ⇒
       system.log.warning(s"Price Update! $priceUpdate")
       priceUpdate
     }

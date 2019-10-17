@@ -10,7 +10,7 @@ import pipelines.streamlets.avro._
 import pipelines.spark.{ SparkStreamletLogic, SparkStreamlet }
 import pipelines.spark.sql.SQLImplicits._
 
-object SparkSequenceGeneratorIngress extends SparkStreamlet {
+class SparkSequenceGeneratorIngress extends SparkStreamlet {
   val out = AvroOutlet[Data]("out", d ⇒ d.key.toString)
   val shape = StreamletShape(out)
 

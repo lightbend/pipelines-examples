@@ -1,22 +1,22 @@
 package warez
 package dsl
 
+import akka.actor.ActorSystem
+
 import pipelines.streamlets._
 import pipelines.akkastream._
 import pipelines.akkastream.scaladsl._
-
-import akka.actor.ActorSystem
 
 abstract class FlowEgress[In](val in: CodecInlet[In])
   extends AkkaStreamlet {
 
   final override val shape = StreamletShape.withInlets(in)
-  def flowWithContext(system: ActorSystem): FlowWithPipelinesContext[In, In]
+  def flowWithContext(system: ActorSystem): FlowWithOffsetContext[In, In]
 
   override def createLogic = new RunnableGraphStreamletLogic {
     def runnableGraph =
-      atLeastOnceSource(in)
-        .via(flowWithContext(system).asFlow)
-        .to(atLeastOnceSink)
+      sourceWithOffsetContext(in)
+        .via(flowWithContext(system))
+        .to(sinkWithOffsetContext)
   }
 }

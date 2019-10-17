@@ -22,9 +22,9 @@ lazy val akkaStreamlets = (project in file("./akka-streamlets"))
   .settings(
     commonSettings,
     libraryDependencies ++= Seq(
-      "com.typesafe.akka"      %% "akka-http-spray-json"              % "10.1.8",
-      "com.lightbend.akka"     %% "akka-stream-alpakka-elasticsearch" % "1.0-RC1",
-      "org.scalatest"          %% "scalatest"                         % "3.0.7"    % "test"
+      "com.typesafe.akka"      %% "akka-http-spray-json"              % "10.1.10",
+      "com.lightbend.akka"     %% "akka-stream-alpakka-elasticsearch" % "1.1.2",
+      "org.scalatest"          %% "scalatest"                         % "3.0.8"    % "test"
     )
   )
   .dependsOn(datamodel)
@@ -34,14 +34,14 @@ lazy val sparkStreamlets = (project in file("./spark-streamlets"))
   .settings(
     commonSettings,
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % "3.0.7" % "test"
+      "org.scalatest" %% "scalatest" % "3.0.8" % "test"
     )
   )
   .dependsOn(datamodel)
 
 
 lazy val commonSettings = Seq(
-  scalaVersion := "2.12.8",
+  scalaVersion := "2.12.10",
   scalacOptions ++= Seq(
     "-encoding", "UTF-8",
     "-target:jvm-1.8",

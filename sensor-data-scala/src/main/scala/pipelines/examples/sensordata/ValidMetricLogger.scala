@@ -5,7 +5,7 @@ import pipelines.akkastream.scaladsl._
 import pipelines.streamlets._
 import pipelines.streamlets.avro._
 
-object ValidMetricLogger extends AkkaStreamlet {
+class ValidMetricLogger extends AkkaStreamlet {
   val inlet = AvroInlet[Metric]("in")
   val shape = StreamletShape.withInlets(inlet)
 
@@ -38,7 +38,7 @@ object ValidMetricLogger extends AkkaStreamlet {
     }
 
     def flow = {
-      FlowWithPipelinesContext[Metric]
+      FlowWithOffsetContext[Metric]
         .map { validMetric ⇒
           log(validMetric)
           validMetric
@@ -46,7 +46,7 @@ object ValidMetricLogger extends AkkaStreamlet {
     }
 
     def runnableGraph = {
-      atLeastOnceSource(inlet).via(flow).to(atLeastOnceSink)
+      sourceWithOffsetContext(inlet).via(flow).to(sinkWithOffsetContext)
     }
   }
 }

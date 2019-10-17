@@ -29,7 +29,7 @@ import JsonFormats._
  */
 import spray.json._
 
-object ProductSearchApiEgress extends AkkaStreamlet {
+class ProductSearchApiEgress extends AkkaStreamlet {
 
   val in = AvroInlet[Product]("in")
   val shape = StreamletShape.withInlets(in)
@@ -42,7 +42,7 @@ object ProductSearchApiEgress extends AkkaStreamlet {
   private val HostName = RegExpConfigParameter(
     "es-hostname",
     "Elasticsearch hostname specified as a DNS label",
-    "^(?![0-9]+$)(?!-)[a-zA-Z0-9-]{,63}(?<!-)$",
+    "^(?![0-9]+$)(?!-)[a-zA-Z0-9-]{0,63}(?<!-)$",
     Some("localhost")
   )
 
@@ -179,9 +179,9 @@ object ProductSearchApiEgress extends AkkaStreamlet {
     )
 
     override def runnableGraph =
-      atLeastOnceSource(in)
-        .via(flowWithContext.asFlow)
-        .to(atLeastOnceSink)
+      sourceWithOffsetContext(in)
+        .via(flowWithContext)
+        .to(sinkWithOffsetContext)
 
     /**
      * Akka Streams Flow to process messages from the streamlet inlet
@@ -193,7 +193,7 @@ object ProductSearchApiEgress extends AkkaStreamlet {
        * Use `FlowWithContext` so that we can commit offsets using at-least-once semantics after
        * messages have been indexed to ES.
        */
-      FlowWithPipelinesContext[Product]
+      FlowWithOffsetContext[Product]
         .log("ES index", product ⇒ s"Indexing Product:\n${product.toJson.prettyPrint}")
         .map { product ⇒
           WriteMessage.createUpsertMessage[Product](product.id.toString, product)

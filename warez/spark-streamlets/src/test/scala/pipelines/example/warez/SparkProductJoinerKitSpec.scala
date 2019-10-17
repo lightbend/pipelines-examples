@@ -3,8 +3,6 @@ package pipelines.example.warez
 import scala.collection.immutable.Seq
 import scala.concurrent.duration._
 
-import org.apache.spark.sql.execution.streaming.state.StateStore
-
 import pipelines.spark.testkit._
 import pipelines.spark.sql.SQLImplicits._
 import TestUtils._

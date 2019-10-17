@@ -12,7 +12,7 @@ import pipelines.spark.sql.SQLImplicits._
 import org.apache.log4j.{ Level, Logger }
 
 import pipelines.examples.carly.data._
-object CallStatsAggregator extends SparkStreamlet {
+class CallStatsAggregator extends SparkStreamlet {
 
   val rootLogger = Logger.getRootLogger()
   rootLogger.setLevel(Level.ERROR)

@@ -20,7 +20,7 @@ import org.apache.log4j.{ Level, Logger }
 
 case class Rate(timestamp: Timestamp, value: Long)
 
-object CallRecordGeneratorIngress extends SparkStreamlet {
+class CallRecordGeneratorIngress extends SparkStreamlet {
 
   val rootLogger = Logger.getRootLogger()
   rootLogger.setLevel(Level.ERROR)

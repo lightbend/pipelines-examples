@@ -20,5 +20,5 @@
  * The sbt plugin expects you to have logged in to the specified registry using
  * the `docker login` command.
  */
-pipelinesDockerRegistry := Some("YOUR_DOCKER_REGISTRY")
-pipelinesDockerRepository := Some("YOUR_DOCKER_REPOSITORY")
+ThisBuild / pipelinesDockerRegistry := Some("YOUR_DOCKER_REGISTRY")
+ThisBuild / pipelinesDockerRepository := Some("YOUR_DOCKER_REPOSITORY")

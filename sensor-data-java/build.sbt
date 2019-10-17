@@ -7,17 +7,19 @@ lazy val sensorDataJava =  (project in file("."))
     .enablePlugins(PipelinesAkkaStreamsApplicationPlugin)
     .settings(
       libraryDependencies ++= Seq(
-        "com.typesafe.akka"      %% "akka-http-spray-json"   % "10.1.8",
-        "ch.qos.logback"         %  "logback-classic"        % "1.2.3",
-        "org.scalatest"          %% "scalatest"              % "3.0.7"    % "test"
+        "com.lightbend.akka"     %% "akka-stream-alpakka-file"  % "1.1.2",
+        "com.typesafe.akka"      %% "akka-http-spray-json"      % "10.1.10",
+        "ch.qos.logback"         %  "logback-classic"           % "1.2.3",
+        "org.scalatest"          %% "scalatest"                 % "3.0.8"    % "test",
+        "junit"                  % "junit"                      % "4.12"     % "test"
       ),
 
-      name := "sensor-java-test",
+      name := "sensor-data-java",
       organization := "com.lightbend",
 
       schemaCodeGenerator := SchemaCodeGenerator.Java,
 
-      scalaVersion := "2.12.8",
+      scalaVersion := "2.12.10",
       crossScalaVersions := Vector(scalaVersion.value),
       scalacOptions ++= Seq(
         "-encoding", "UTF-8",

@@ -7,7 +7,7 @@ import warez.dsl._
 
 object ProductLogger extends FlowEgress[Product](AvroInlet[Product]("in")) {
   def flowWithContext(system: ActorSystem) =
-    FlowWithPipelinesContext[Product].map { product ⇒
+    FlowWithOffsetContext[Product].map { product ⇒
       system.log.warning(s"Product! $product")
       product
     }

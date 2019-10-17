@@ -8,13 +8,14 @@ import pipelines.spark.sql.SQLImplicits._
 
 class SparkSequenceValidatorEgressTest extends SparkScalaTestSupport {
 
-  val testKit = SparkStreamletTestkit(session).withConfigParameterValues(ConfigParameterValue(SparkSequenceGeneratorIngress.RecordsPerSecond, "50"))
+  val streamlet = new SparkSequenceValidatorEgress()
+  val testKit = SparkStreamletTestkit(session)
 
   "SparkSequenceValidatorEgress" should {
     "output streaming data" in {
 
       // Setup inlet tap on inlet(s) port(s)
-      val in: SparkInletTap[Data] = testKit.inletAsTap[Data](SparkSequenceValidatorEgress.in)
+      val in: SparkInletTap[Data] = testKit.inletAsTap[Data](streamlet.in)
 
       // Build data and send to inlet tap
       val now = System.currentTimeMillis()
@@ -22,7 +23,7 @@ class SparkSequenceValidatorEgressTest extends SparkScalaTestSupport {
         (0 until SequenceSettings.GroupSize - 1).map(i ⇒ Data(now + i * 1000, 2, i.toLong))
       in.addData(data)
 
-      testKit.run(SparkSequenceValidatorEgress, Seq(in), Seq.empty, 10.seconds)
+      testKit.run(streamlet, Seq(in), Seq.empty, 10.seconds)
 
     }
   }

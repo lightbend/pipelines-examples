@@ -1,10 +1,10 @@
 package pipelines.examples.sensordata;
 
 import akka.stream.javadsl.*;
-import pipelines.akkastream.javadsl.util.Either;
 
 import akka.NotUsed;
 import akka.actor.*;
+import akka.kafka.ConsumerMessage.CommittableOffset;
 import akka.stream.*;
 
 import com.typesafe.config.Config;
@@ -12,6 +12,7 @@ import com.typesafe.config.Config;
 import pipelines.streamlets.*;
 import pipelines.streamlets.avro.*;
 import pipelines.akkastream.*;
+import pipelines.akkastream.javadsl.util.Either;
 import pipelines.akkastream.util.javadsl.*;
 
 public class MetricsValidation extends AkkaStreamlet {
@@ -25,8 +26,8 @@ public class MetricsValidation extends AkkaStreamlet {
 
   public SplitterLogic createLogic() {
     return new SplitterLogic<Metric,InvalidMetric, Metric>(inlet, invalidOutlet, validOutlet, getStreamletContext()) {
-      public FlowWithContext<Metric, PipelinesContext, Either<InvalidMetric, Metric>, PipelinesContext, NotUsed> createFlow() {
-        return createFlowWithPipelinesContext()
+      public FlowWithContext<Metric, CommittableOffset, Either<InvalidMetric, Metric>, CommittableOffset, NotUsed> createFlow() {
+        return createFlowWithOffsetContext()
           .map(metric -> {
             if (!SensorDataUtils.isValidMetric(metric)) return Either.left(new InvalidMetric(metric, "All measurements must be positive numbers!"));
             else return Either.right(metric);

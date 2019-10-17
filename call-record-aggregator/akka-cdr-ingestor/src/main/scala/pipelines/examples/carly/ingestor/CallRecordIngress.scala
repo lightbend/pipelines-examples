@@ -9,8 +9,11 @@ import pipelines.streamlets._
 import pipelines.akkastream._
 import pipelines.akkastream.util.scaladsl.HttpServerLogic
 
-object CallRecordIngress extends AkkaServerStreamlet {
-  val out = AvroOutlet[CallRecord]("out", _.user)
+class CallRecordIngress extends AkkaServerStreamlet {
+
+  //tag::docs-outlet-partitioner-example[]
+  val out = AvroOutlet[CallRecord]("out").withPartitioner(RoundRobinPartitioner)
+  //end::docs-outlet-partitioner-example[]
 
   final override val shape = StreamletShape.withOutlets(out)
   final override def createLogic = HttpServerLogic.default(this, out)

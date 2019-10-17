@@ -14,18 +14,19 @@ import pipelines.spark.sql.SQLImplicits._
 
 class CallStatsAggregatorSpec extends SparkScalaTestSupport {
 
+  val streamlet = new CallStatsAggregator()
   val testKit = SparkStreamletTestkit(session).withConfigParameterValues(
-    ConfigParameterValue(CallStatsAggregator.GroupByWindow, "1 minute"),
-    ConfigParameterValue(CallStatsAggregator.Watermark, "1 minute"))
+    ConfigParameterValue(streamlet.GroupByWindow, "1 minute"),
+    ConfigParameterValue(streamlet.Watermark, "1 minute"))
 
   "CallStatsAggregator" should {
     "produce elements to its outlet" in {
 
       // setup inlet tap on inlet port
-      val in = testKit.inletAsTap[CallRecord](CallStatsAggregator.in)
+      val in = testKit.inletAsTap[CallRecord](streamlet.in)
 
       // setup outlet tap on outlet port
-      val out = testKit.outletAsTap[AggregatedCallStats](CallStatsAggregator.out)
+      val out = testKit.outletAsTap[AggregatedCallStats](streamlet.out)
 
       val maxUsers = 10
       val crs = (1 to 30).toList.map { i ⇒
@@ -40,7 +41,7 @@ class CallStatsAggregatorSpec extends SparkScalaTestSupport {
 
       in.addData(crs)
 
-      testKit.run(CallStatsAggregator, Seq(in), Seq(out), 30.seconds)
+      testKit.run(streamlet, Seq(in), Seq(out), 30.seconds)
 
       // get data from outlet tap
       val results = out.asCollection(session)

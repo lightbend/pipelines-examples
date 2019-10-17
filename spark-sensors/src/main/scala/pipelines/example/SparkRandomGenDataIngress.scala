@@ -14,7 +14,7 @@ import pipelines.spark.sql.SQLImplicits._
 
 case class Rate(timestamp: Timestamp, value: Long)
 
-object SparkRandomGenDataIngress extends SparkStreamlet {
+class SparkRandomGenDataIngress extends SparkStreamlet {
   val out = AvroOutlet[Data]("out", d ⇒ d.src)
   val shape = StreamletShape(out)
 

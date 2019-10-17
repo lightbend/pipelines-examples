@@ -5,5 +5,5 @@ import pipelines.streamlets.avro._
 import JsonFormats._
 import warez.dsl._
 
-object PriceUpdateIngress extends HttpIngress[PriceUpdate](AvroOutlet[PriceUpdate]("out", _.productId.toString))
+class PriceUpdateIngress extends HttpIngress[PriceUpdate](AvroOutlet[PriceUpdate]("out", _.productId.toString))
 

@@ -5,4 +5,4 @@ import pipelines.streamlets.avro._
 import JsonFormats._
 import warez.dsl._
 
-object ProductIngress extends HttpIngress[Product](AvroOutlet[Product]("out", _.id.toString))
+class ProductIngress extends HttpIngress[Product](AvroOutlet[Product]("out", _.id.toString))

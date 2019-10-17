@@ -1,12 +1,16 @@
 package warez
+
 import akka.NotUsed
+import akka.kafka.ConsumerMessage.CommittableOffset
 import akka.stream.alpakka.elasticsearch.{ ReadResult, WriteMessage, WriteResult }
 import akka.stream.alpakka.elasticsearch.scaladsl.{ ElasticsearchFlow, ElasticsearchSource }
-import akka.stream.scaladsl.{ Flow, Source }
+import akka.stream.scaladsl.Source
+
 import org.apache.http.HttpHost
 import org.elasticsearch.client.RestClient
-import pipelines.akkastream.PipelinesContext
 import spray.json.{ JsObject, JsonFormat }
+
+import pipelines.akkastream.scaladsl.FlowWithOffsetContext
 
 /**
  * Alpakka Kafka graph stages used to index and search for Warez domain entities.
@@ -30,8 +34,8 @@ class ElasticSearchClient[T: JsonFormat](config: ElasticSearchClient.Config) {
    */
   implicit val esClient: RestClient = RestClient.builder(new HttpHost(hostname, port)).build()
 
-  def indexFlow(): Flow[(WriteMessage[T, NotUsed], PipelinesContext), (WriteResult[T, PipelinesContext], PipelinesContext), NotUsed] =
-    ElasticsearchFlow.createWithContext[T, PipelinesContext](indexName, typeName)
+  def indexFlow(): FlowWithOffsetContext[WriteMessage[T, NotUsed], WriteResult[T, CommittableOffset]] =
+    ElasticsearchFlow.createWithContext[T, CommittableOffset](indexName, typeName)
 
   def querySource(searchCriteria: String): Source[ReadResult[JsObject], NotUsed] =
     ElasticsearchSource

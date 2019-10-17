@@ -5,4 +5,3 @@ public final class SensorDataUtils {
     return m.getValue() >= 0.0;
   }
 }
-

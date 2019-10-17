@@ -7,13 +7,13 @@ lazy val sparkSensors = (project in file("."))
     .enablePlugins(PipelinesSparkApplicationPlugin)
     .settings(
       libraryDependencies ++= Seq(
-        "org.scalatest" %% "scalatest" % "3.0.7" % "test"
+        "org.scalatest" %% "scalatest" % "3.0.8" % "test"
       ),
 
       name := "spark-sensors",
       organization := "com.lightbend",
 
-      scalaVersion := "2.12.8",
+      scalaVersion := "2.12.10",
       crossScalaVersions := Vector(scalaVersion.value),
       scalacOptions ++= Seq(
         "-encoding", "UTF-8",

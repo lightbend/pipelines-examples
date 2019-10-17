@@ -1,0 +1,34 @@
+{
+    "namespace": "pipelines.example",
+    "type": "record",
+    "name": "Data",
+    "fields":[
+         {
+            "name": "src", 
+            "type": "string"
+         },
+         {
+            "name": "timestamp",
+            "type": "long"
+         },
+         {
+            "name": "t1",
+            "type":["null", "long"],
+            "default": null
+         },
+         {
+            "name": "t2",
+            "type":["null", "long"],
+            "default": null
+          },
+         {
+            "name": "gauge",
+            "type": "string"
+         },
+         {
+            "name": "value",
+            "type": "double"
+         }
+    ]
+}
+

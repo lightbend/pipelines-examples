@@ -8,7 +8,7 @@ import pipelines.streamlets.avro._
 import pipelines.spark.{ SparkStreamletLogic, SparkStreamlet }
 import pipelines.spark.sql.SQLImplicits._
 
-object SuicidalMonkeyProcessor extends SparkStreamlet {
+class SuicidalMonkeyProcessor extends SparkStreamlet {
   val in = AvroInlet[Data]("in")
   val out = AvroOutlet[Data]("out", _.key.toString)
   val shape = StreamletShape(in, out)

@@ -32,3 +32,4 @@ project/activator-sbt*
 */.bloop/
 */project/.bloop/
 .gitignore
+target-env.sbt

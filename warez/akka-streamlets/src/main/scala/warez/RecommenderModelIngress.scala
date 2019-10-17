@@ -10,5 +10,5 @@ import warez.dsl._
  * file is transferred after converting to base64. This should be the start of the model serving
  * pipeline.
  */
-object RecommenderModelIngress extends HttpIngress[RecommenderModel](AvroOutlet[RecommenderModel]("out", _.modelId.toString))
+class RecommenderModelIngress extends HttpIngress[RecommenderModel](AvroOutlet[RecommenderModel]("out", _.modelId.toString))
 

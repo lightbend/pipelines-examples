@@ -9,17 +9,19 @@ lazy val sensorData =  (project in file("."))
     .settings(
 //end::docs-projectSetup-example[]
       libraryDependencies ++= Seq(
-        "com.typesafe.akka"      %% "akka-http-spray-json"   % "10.1.8",
-        "ch.qos.logback"         %  "logback-classic"        % "1.2.3",
-        "com.typesafe.akka"      %% "akka-http-testkit"      % "10.1.8" % "test",
-        "org.scalatest"          %% "scalatest"              % "3.0.7"  % "test"
+        "com.lightbend.akka"     %% "akka-stream-alpakka-file"  % "1.1.2",
+        "com.typesafe.akka"      %% "akka-http-spray-json"      % "10.1.10",
+        "ch.qos.logback"         %  "logback-classic"           % "1.2.3",
+        "com.typesafe.akka"      %% "akka-http-testkit"         % "10.1.10" % "test",
+        "org.scalatest"          %% "scalatest"                 % "3.0.8"  % "test"
+
 //tag::docs-projectName-example[]
       ),
       name := "sensor-data-scala",
 //end::docs-projectName-example[]
       organization := "com.lightbend",
 
-      scalaVersion := "2.12.8",
+      scalaVersion := "2.12.10",
       crossScalaVersions := Vector(scalaVersion.value),
       scalacOptions ++= Seq(
         "-encoding", "UTF-8",
@@ -33,6 +35,7 @@ lazy val sensorData =  (project in file("."))
         "-language:_",
         "-unchecked"
       ),
+      runLocalConfigFile := Some("resources/local.conf"),
 
       scalacOptions in (Compile, console) --= Seq("-Ywarn-unused", "-Ywarn-unused-import"),
       scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value,

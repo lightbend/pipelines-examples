@@ -7,7 +7,7 @@ lazy val callRecordPipeline = (project in file("./call-record-pipeline"))
   .enablePlugins(PipelinesApplicationPlugin)
   .settings(commonSettings)
   .settings(
-    name := "call-record-pipeline"
+    name := "call-record-aggregator"
   )
   .dependsOn(akkaCdrIngestor, akkaJavaAggregationOutput, sparkAggregation)
 //end::docs-PipelinesApplicationPlugin-example[]
@@ -20,8 +20,8 @@ lazy val akkaCdrIngestor= (project in file("./akka-cdr-ingestor"))
     .settings(
       commonSettings,
       libraryDependencies ++= Seq(
-        "com.typesafe.akka"         %% "akka-http-spray-json"   % "10.1.8",
-        "org.scalatest"             %% "scalatest"              % "3.0.7"    % "test"
+        "com.typesafe.akka"         %% "akka-http-spray-json"   % "10.1.10",
+        "org.scalatest"             %% "scalatest"              % "3.0.8"    % "test"
       )
     )
   .dependsOn(datamodel)
@@ -31,8 +31,8 @@ lazy val akkaJavaAggregationOutput= (project in file("./akka-java-aggregation-ou
   .settings(
     commonSettings,
     libraryDependencies ++= Seq(
-      "com.typesafe.akka"      %% "akka-http-spray-json"   % "10.1.8",
-      "org.scalatest"          %% "scalatest"              % "3.0.7"    % "test"
+      "com.typesafe.akka"      %% "akka-http-spray-json"   % "10.1.10",
+      "org.scalatest"          %% "scalatest"              % "3.0.8"    % "test"
     )
   )
   .dependsOn(datamodel)
@@ -44,14 +44,14 @@ lazy val sparkAggregation = (project in file("./spark-aggregation"))
       Test / parallelExecution := false,
       Test / fork := true,
       libraryDependencies ++= Seq(
-        "org.scalatest"  %% "scalatest" % "3.0.7"  % "test"
+        "org.scalatest"  %% "scalatest" % "3.0.8"  % "test"
       )
     )
   .dependsOn(datamodel)
 
 
 lazy val commonSettings = Seq(
-  scalaVersion := "2.12.8",
+  scalaVersion := "2.12.10",
   scalacOptions ++= Seq(
     "-encoding", "UTF-8",
     "-target:jvm-1.8",

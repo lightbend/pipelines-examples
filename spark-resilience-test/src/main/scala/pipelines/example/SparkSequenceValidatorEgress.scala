@@ -90,7 +90,7 @@ object StateFunction extends Serializable {
   }
 }
 
-object SparkSequenceValidatorEgress extends SparkStreamlet {
+class SparkSequenceValidatorEgress extends SparkStreamlet {
   val in = AvroInlet[Data]("in")
   val shape = StreamletShape(in)
 

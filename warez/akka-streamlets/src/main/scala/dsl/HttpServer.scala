@@ -3,18 +3,18 @@ package dsl
 
 import scala.util._
 
-import akka._
 import akka.actor._
 import akka.http.scaladsl._
 import akka.http.scaladsl.model._
 import akka.stream._
 import akka.stream.scaladsl._
 
+import pipelines.streamlets.Dun
 import pipelines.akkastream._
 
 trait HttpServer {
   def startServer(
-      context: StreamletContext,
+      context: AkkaStreamletContext,
       handler: Flow[HttpRequest, HttpResponse, _],
       port: Int
   )(implicit system: ActorSystem, mat: Materializer): Unit = {
@@ -27,7 +27,7 @@ trait HttpServer {
         // this only completes when StreamletRef executes cleanup.
         context.onStop { () ⇒
           system.log.info(s"Unbinding from ${binding.localAddress.getHostName}:${binding.localAddress.getPort}")
-          binding.unbind().map(_ ⇒ Done)
+          binding.unbind().map(_ ⇒ Dun)
         }
         binding
       }

@@ -1,6 +1,7 @@
 package pipelines.examples.carly.output;
 
 import akka.NotUsed;
+import akka.kafka.ConsumerMessage.CommittableOffset;
 import akka.stream.javadsl.*;
 
 import pipelines.streamlets.*;
@@ -26,14 +27,14 @@ public class InvalidRecordEgress extends AkkaStreamlet {
     return new RunnableGraphStreamletLogic(getStreamletContext()) {
       @Override
       public RunnableGraph<?> createRunnableGraph() {
-        return getAtLeastOnceSource(in)
-          .via(flowWithContext().asFlow())
-          .to(getAtLeastOnceSink());
+        return getSourceWithOffsetContext(in)
+          .via(flowWithContext())
+          .to(getSinkWithOffsetContext());
       }
     };
   }
 
-  private FlowWithContext<InvalidRecord,PipelinesContext,Object,PipelinesContext,NotUsed> flowWithContext() {
-    return FlowWithPipelinesContext.<InvalidRecord>create().map(metric -> doPrint(metric));
+  private FlowWithContext<InvalidRecord,CommittableOffset,Object,CommittableOffset,NotUsed> flowWithContext() {
+    return FlowWithOffsetContext.<InvalidRecord>create().map(metric -> doPrint(metric));
   }
 }

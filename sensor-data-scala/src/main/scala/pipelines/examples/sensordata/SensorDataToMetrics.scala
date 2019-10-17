@@ -2,15 +2,15 @@ package pipelines.examples.sensordata
 
 import pipelines.akkastream._
 import pipelines.akkastream.scaladsl._
-import pipelines.streamlets.StreamletShape
+import pipelines.streamlets.{ RoundRobinPartitioner, StreamletShape }
 import pipelines.streamlets.avro._
 
-object SensorDataToMetrics extends AkkaStreamlet {
+class SensorDataToMetrics extends AkkaStreamlet {
   val in = AvroInlet[SensorData]("in")
-  val out = AvroOutlet[Metric]("out", m ⇒ m.deviceId.toString + m.timestamp.toString)
+  val out = AvroOutlet[Metric]("out").withPartitioner(RoundRobinPartitioner)
   val shape = StreamletShape(in, out)
   def flow = {
-    FlowWithPipelinesContext[SensorData]
+    FlowWithOffsetContext[SensorData]
       .mapConcat { data ⇒
         List(
           Metric(data.deviceId, data.timestamp, "power", data.measurements.power),
@@ -20,6 +20,6 @@ object SensorDataToMetrics extends AkkaStreamlet {
       }
   }
   override def createLogic = new RunnableGraphStreamletLogic() {
-    def runnableGraph = atLeastOnceSource(in).via(flow).to(atLeastOnceSink(out))
+    def runnableGraph = sourceWithOffsetContext(in).via(flow).to(sinkWithOffsetContext(out))
   }
 }

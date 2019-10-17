@@ -8,16 +8,17 @@ import pipelines.spark.sql.SQLImplicits._
 
 class SparkSequenceGeneratorIngressTest extends SparkScalaTestSupport {
 
-  val testKit = SparkStreamletTestkit(session).withConfigParameterValues(ConfigParameterValue(SparkSequenceGeneratorIngress.RecordsPerSecond, "50"))
+  val streamlet = new SparkSequenceGeneratorIngress()
+  val testKit = SparkStreamletTestkit(session).withConfigParameterValues(ConfigParameterValue(streamlet.RecordsPerSecond, "50"))
 
   "SparkSequenceGeneratorIngress" should {
     "produce data " in {
 
       // setup inlet tap on inlet(s) port(s)
-      val out: SparkOutletTap[Data] = testKit.outletAsTap[Data](SparkSequenceGeneratorIngress.out)
+      val out: SparkOutletTap[Data] = testKit.outletAsTap[Data](streamlet.out)
 
       // Run the streamlet using the testkit and the setup inlet taps and outlet probes
-      testKit.run(SparkSequenceGeneratorIngress, Seq.empty, Seq(out), 10.seconds)
+      testKit.run(streamlet, Seq.empty, Seq(out), 10.seconds)
 
       // get data from outlet tap
       val results = out.asCollection(session)

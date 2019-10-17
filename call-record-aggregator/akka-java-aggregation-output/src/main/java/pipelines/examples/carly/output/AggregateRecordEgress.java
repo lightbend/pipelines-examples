@@ -1,6 +1,7 @@
 package pipelines.examples.carly.output;
 
 import akka.NotUsed;
+import akka.kafka.ConsumerMessage.CommittableOffset;
 import akka.stream.javadsl.*;
 import pipelines.streamlets.*;
 import pipelines.streamlets.avro.*;
@@ -13,11 +14,6 @@ import pipelines.examples.carly.data.*;
 public class AggregateRecordEgress extends AkkaStreamlet {
   public AvroInlet<AggregatedCallStats> in = AvroInlet.create("in", AggregatedCallStats.class);
 
-  private Object doPrint(final AggregatedCallStats metric) {
-    System.out.println(metric);
-    return metric;
-  }
-
   @Override public StreamletShape shape() {
     return StreamletShape.createWithInlets(in);
   }
@@ -27,14 +23,16 @@ public class AggregateRecordEgress extends AkkaStreamlet {
     return new RunnableGraphStreamletLogic(getStreamletContext()) {
       @Override
       public RunnableGraph<?> createRunnableGraph() {
-        return getAtLeastOnceSource(in)
-          .via(flowWithContext().asFlow())
-          .to(getAtLeastOnceSink());
+        return getSourceWithOffsetContext(in)
+          .via(
+            FlowWithOffsetContext.<AggregatedCallStats>create()
+              .map(metric -> {
+                System.out.println(metric);
+                return metric;
+              })
+          )
+          .to(getSinkWithOffsetContext());
       }
     };
-  }
-
-  private FlowWithContext<AggregatedCallStats,PipelinesContext,Object,PipelinesContext,NotUsed> flowWithContext() {
-    return FlowWithPipelinesContext.<AggregatedCallStats>create().map(metric -> doPrint(metric));
   }
 }
