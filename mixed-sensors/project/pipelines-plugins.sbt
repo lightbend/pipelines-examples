@@ -9,4 +9,4 @@
 resolvers += Resolver.url("lightbend-commercial", url("https://repo.lightbend.com/commercial-releases"))(Resolver.ivyStylePatterns)
 resolvers += "Akka Snapshots" at "https://repo.akka.io/snapshots/"
 
-addSbtPlugin("com.lightbend.pipelines" % "sbt-pipelines" % "1.1.1-1269-e4a40957")
+addSbtPlugin("com.lightbend.pipelines" % "sbt-pipelines" % "1.2.0")
