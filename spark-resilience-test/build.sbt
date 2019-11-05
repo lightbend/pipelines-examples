@@ -7,7 +7,8 @@ lazy val sparkSensors = (project in file("."))
     .enablePlugins(PipelinesSparkApplicationPlugin)
     .settings(
       libraryDependencies ++= Seq(
-        "org.scalatest" %% "scalatest" % "3.0.8" % "test"
+        "ch.qos.logback" % "logback-classic" % "1.2.3",
+        "org.scalatest" %% "scalatest"       % "3.0.8" % "test"
       ),
 
       name := "spark-resilience-test",

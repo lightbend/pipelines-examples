@@ -25,6 +25,7 @@ lazy val ingestor = (project in file("./ingestor"))
     commonSettings,
     libraryDependencies ++= Seq(
       "com.typesafe.akka"         %% "akka-http-spray-json"   % "10.1.10",
+      "ch.qos.logback"            %  "logback-classic"        % "1.2.3",
       "org.scalatest"             %% "scalatest"              % "3.0.8"    % "test"
     )
   )

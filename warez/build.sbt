@@ -24,6 +24,7 @@ lazy val akkaStreamlets = (project in file("./akka-streamlets"))
     libraryDependencies ++= Seq(
       "com.typesafe.akka"      %% "akka-http-spray-json"              % "10.1.10",
       "com.lightbend.akka"     %% "akka-stream-alpakka-elasticsearch" % "1.1.2",
+      "ch.qos.logback"         %  "logback-classic"                   % "1.2.3",
       "org.scalatest"          %% "scalatest"                         % "3.0.8"    % "test"
     )
   )
@@ -34,7 +35,8 @@ lazy val sparkStreamlets = (project in file("./spark-streamlets"))
   .settings(
     commonSettings,
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % "3.0.8" % "test"
+      "ch.qos.logback" % "logback-classic" % "1.2.3",
+      "org.scalatest" %% "scalatest"       % "3.0.8" % "test"
     )
   )
   .dependsOn(datamodel)

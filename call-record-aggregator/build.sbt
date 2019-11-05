@@ -21,6 +21,7 @@ lazy val akkaCdrIngestor= (project in file("./akka-cdr-ingestor"))
       commonSettings,
       libraryDependencies ++= Seq(
         "com.typesafe.akka"         %% "akka-http-spray-json"   % "10.1.10",
+        "ch.qos.logback"            %  "logback-classic"        % "1.2.3",
         "org.scalatest"             %% "scalatest"              % "3.0.8"    % "test"
       )
     )
@@ -32,6 +33,7 @@ lazy val akkaJavaAggregationOutput= (project in file("./akka-java-aggregation-ou
     commonSettings,
     libraryDependencies ++= Seq(
       "com.typesafe.akka"      %% "akka-http-spray-json"   % "10.1.10",
+      "ch.qos.logback"         %  "logback-classic"        % "1.2.3",
       "org.scalatest"          %% "scalatest"              % "3.0.8"    % "test"
     )
   )
@@ -44,6 +46,7 @@ lazy val sparkAggregation = (project in file("./spark-aggregation"))
       Test / parallelExecution := false,
       Test / fork := true,
       libraryDependencies ++= Seq(
+        "ch.qos.logback" %  "logback-classic"        % "1.2.3",
         "org.scalatest"  %% "scalatest" % "3.0.8"  % "test"
       )
     )
